@@ -1,6 +1,8 @@
-# BIST Bank Stocks Data Scraper
+# BIST Banking Stocks Data Scraper
 
 This Python project is a tool that scrapes stock data for banking sector companies listed on Borsa Istanbul (BIST) using Yahoo Finance API and stores them in a CSV file format.
+
+[Kaggle Dataset](https://www.kaggle.com/datasets/bahadirbor/bist-bank-stocks)
 
 ## Features
 
