@@ -1,10 +1,14 @@
 import sqlite3
-
+from dotenv import load_dotenv
 import requests
 import pandas as pd
 import warnings
+import os
 
 warnings.filterwarnings('ignore')
+
+load_dotenv(dotenv_path="config/.env")
+database_path = str(os.getenv("DATABASE_NAME"))
 
 
 class MultiStockDataFrame:
@@ -149,16 +153,18 @@ class MultiStockDataFrame:
             print("There is no data!")
             return
 
-        df.to_csv("all_datas.csv", index=False, float_format='%.3f')
+        df.to_csv("data/banking_stocks.csv", index=False, float_format='%.3f')
 
-    def save_to_sql(self, df, db_path, table_name):
+    def save_to_sql(self, df, db_path, table_name="Stocks"):
         """Save DataFrame to a SQLite database"""
         conn = sqlite3.connect(db_path)
-        df.to_sql(name=table_name,con=db_path,if_exists='replace',index=False)
+        df.to_sql(name=table_name,con=conn,if_exists='replace',index=False)
 
 
 def main():
     multi_fetcher = MultiStockDataFrame()
+
+    multi_fetcher.create_database(database_path, "data/banking.sql")
 
     # BIST Bank Companies
     stock_symbols = [
@@ -176,9 +182,9 @@ def main():
     combined_df = multi_fetcher.create_combined_dataframe(stock_symbols, period="5y")
 
     if combined_df is not None:
-        # Save to CSV
+        """Save to CSV file and SQLite Database Table"""
         multi_fetcher.save_to_csv(combined_df)
-        multi_fetcher.save_to_sql(combined_df, )
+        multi_fetcher.save_to_sql(combined_df, database_path)
 
 
 if __name__ == "__main__":
