@@ -1,3 +1,5 @@
+import sqlite3
+
 import requests
 import pandas as pd
 import warnings
@@ -130,6 +132,17 @@ class MultiStockDataFrame:
             print("There is no data!")
             return None
 
+    def create_database(self, db_path, sql):
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        with open(sql, "r") as sql_code:
+            sql_script = sql_code.read()
+            cursor.executescript(sql_script)
+
+        conn.commit()
+        conn.close()
+
     def save_to_csv(self, df):
         """Save DataFrame to a CSV file"""
         if df is None or df.empty:
@@ -137,6 +150,11 @@ class MultiStockDataFrame:
             return
 
         df.to_csv("all_datas.csv", index=False, float_format='%.3f')
+
+    def save_to_sql(self, df, db_path, table_name):
+        """Save DataFrame to a SQLite database"""
+        conn = sqlite3.connect(db_path)
+        df.to_sql(name=table_name,con=db_path,if_exists='replace',index=False)
 
 
 def main():
@@ -155,11 +173,12 @@ def main():
         "YKBNK.IS" # "Yapı Kredi"
     ]
 
-    combined_df = multi_fetcher.create_combined_dataframe(stock_symbols, period="1y")
+    combined_df = multi_fetcher.create_combined_dataframe(stock_symbols, period="5y")
 
     if combined_df is not None:
         # Save to CSV
         multi_fetcher.save_to_csv(combined_df)
+        multi_fetcher.save_to_sql(combined_df, )
 
 
 if __name__ == "__main__":
